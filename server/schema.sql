@@ -1,6 +1,8 @@
 -- Esta es la base de esta base de datos.
 CREATE DATABASE cards;
 
+USE cards;
+
 -- Tengo 12 campos
 CREATE TABLE card(
 	id INT NOT NULL AUTO_INCREMENT,
