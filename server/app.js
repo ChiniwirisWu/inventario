@@ -1,4 +1,5 @@
 import express from 'express';
+import bcrypt from 'bcrypt';
 import cors from 'cors';
 import { 
 	getAllCards,
@@ -6,15 +7,10 @@ import {
 	addCard,
 	getAllClients,
 	getAllBorrowed,
-	getBorrowedById
+	getBorrowedById,
+	createClient,
+	getClientById
 } from './database.js';
-
-//Esto es una medida de seguridad. TODO: Entender cómo usar corsOptions para el middleware cors();  
-//const corsOptions = {
-	//origin: "http://127.0.0.1:9090",
-	//methods: ['POST','GET'],
-	//credentials: true
-//}
 
 //middlewares 
 const app = express();
@@ -42,11 +38,29 @@ app.get('/getBorrowedById/', async (req,res)=>{
 	res.status(200).send(row);
 })
 
+app.get('/getAllClients/', async (req,res)=>{
+	const rows = await getAllClients(); 
+	res.status(200).send(rows);
+})
+
+app.get('/getClientById/', async (req,res)=>{
+	const row = await getClientById(req.params.id); 
+	res.status(200).send(row);
+})
+
 
 // post, put, and delete
 app.post('/addCard/', async (req, res)=>{
 	const status = await addCard(req.body);
 	res.sendStatus(status)
+})
+
+app.post('/addUser', async (req, res)=>{
+	const { body } = req;
+	const salt = await bcrypt.genSalt();
+	const encrypted_password = await bcrypt.hash(body.password, salt);
+	const savedId = createClient(body, encrypted_password, salt);
+	res.status(200).send(savedId)
 })
 
 

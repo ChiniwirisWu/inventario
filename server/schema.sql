@@ -26,7 +26,8 @@ CREATE TABLE client(
 	id VARCHAR(20) NOT NULL, -- El id sera la cedula.
 	name VARCHAR(50) NOT NULL,
 	role VARCHAR(10) NOT NULL, -- librarian, admin, reader
-	password VARCHAR(50) NOT NULL,
+	password VARCHAR(100) NOT NULL,
+	salt VARCHAR(50) NOT NULL,
 	PRIMARY KEY (id)
 );
 
