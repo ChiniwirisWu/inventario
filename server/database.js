@@ -31,16 +31,19 @@ export async function getAllClients(){
 	return rows;
 }
 
-export async function getClientById(id){
-	const [rows, fields] = await pool.execute('SELECT * FROM client WHERE id = ?', [id]);
-	return rows[0];
+export async function getClientByEmail(email){
+	try{
+		const [rows, fields] = await pool.execute('SELECT * FROM client WHERE email = ?', [email]);
+		return rows;
+	} catch (err){
+		return null; 
+	}
 }
 
 export async function createClient(body, encrypted_password, salt){
-	const { name, role, id } = body;
-	const [rows, fields] = await pool.query('INSERT INTO client (id, name, password, salt, role) VALUES (?, ?, ?, ?, ?)', [id, name, encrypted_password, salt, role]);
-	console.log(rows);
-	return 1;
+	const { name, role, email } = body;
+	const [rows, fields] = await pool.query('INSERT INTO client (email, name, password, salt, role) VALUES (?, ?, ?, ?, ?)', [email, name, encrypted_password, salt, role]);
+	return rows.affectedRows;
 }
 
 
