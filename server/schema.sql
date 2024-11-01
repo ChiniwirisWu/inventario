@@ -23,6 +23,7 @@ CREATE TABLE card(
 
 -- usuarios (bibliotecario, administradores, lectores)
 CREATE TABLE client(
+	id INT NOT NULL AUTO_INCREMENT UNIQUE,
 	email VARCHAR(50) NOT NULL, -- 
 	name VARCHAR(50) NOT NULL,
 	role VARCHAR(10) NOT NULL, -- librarian, admin, reader

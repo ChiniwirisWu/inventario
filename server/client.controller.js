@@ -1,4 +1,6 @@
 import mysql2 from 'mysql2/promise';
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -8,24 +10,44 @@ const pool = mysql2.createPool({
 	password: process.env.MYSQL_PASSWORD,
 	database: process.env.MYSQL_DATABASE,
 });
+const signToken = id => jwt.sign(id, process.env.SECRET);
 
 const Client = {
-	getAllClients: async (req, res)=>{
-		const [rows, fields] = await pool.execute('SELECT * FROM client');
-		res.status(200).send(rows);
-	},
-	getClientByEmail: async (email)=>{
+	register: async (req, res)=>{
 		try{
-			const [rows, fields] = await pool.execute('SELECT * FROM client WHERE email = ?', [email]);
-			return rows;
-		} catch (err){
-			return null; 
+			const { body } = req;
+			const [rows, columns] = await pool.execute('SELECT * FROM client WHERE email = ?;', [body.email]);
+			if (rows.length < 1){
+				const salt = await bcrypt.genSalt();
+				const hashed = await bcrypt.hash(body.password, salt);
+				const response = await pool.execute('INSERT INTO client (email, name, role, password, salt) VALUES (?, ?, ?, ?, ?)', [body.email, body.name, body.role, hashed, salt]);
+				if (response[0].affectedRows == 1) {
+					const [rows, columns] = await pool.execute('SELECT * FROM client WHERE email = ?', [body.email]);
+					const token = signToken(rows[0].id); 
+					res.status(200).send(token);
+				} else {
+					res.status(400).send('Ha ocurrido un error con los datos ingresados.');
+				}
+			} else{
+				res.status(400).send('Usuario ya existe.')
+			}
+		} catch (e){
+			res.status(500).send(e.message)
 		}
 	},
-	createClient: async (body, encrypted_password, salt)=> {
-		const { name, role, email } = body;
-		const [rows, fields] = await pool.query('INSERT INTO client (email, name, password, salt, role) VALUES (?, ?, ?, ?, ?)', [email, name, encrypted_password, salt, role]);
-		return rows.affectedRows;
+	login: async (req, res)=>{
+		try {
+			const { body } = req;
+			const [rows, columns] = await pool.execute('SELECT * FROM client WHERE email = ?', [body.email]);
+			res.send(rows);
+			if(rows.length > 0){
+				
+			} else {
+				res.status(400).send('Usuario no existe.')
+			}
+		} catch (e){
+			res.status(500).send(e.message);
+		}
 	}
 } 
 

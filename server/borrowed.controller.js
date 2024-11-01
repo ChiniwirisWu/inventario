@@ -10,14 +10,5 @@ const pool = mysql2.createPool({
 });
 
 const Borrowed = {
-	getAllBorrowed: async ()=>{
-		const [rows, fields] = await pool.execute('SELECT * FROM borrowed');
-		return rows;
-	},
-	getBorrowedById: async (id)=> {
-		const [rows, fields] = await pool.execute('SELECT * FROM borrowed WHERE id = ?', [id]);
-		return rows[0];
-	}
 }
-
 export default Borrowed;

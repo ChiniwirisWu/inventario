@@ -28,8 +28,8 @@ const assignClient = async (req, res, next)=>{
 }
 const isAuthorized = express.Router().use(validateJwt, assignClient)
 
-app.get('/clients', Client.getAllClients);
-
+app.post('/register', Client.register);
+app.post('/login', Client.login);
 // estas son mis endpoints
 //app.get('/getAllCards/', async (req,res)=>{
 	//const rows = await Card.getAllCards(); 
